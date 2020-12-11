@@ -5,8 +5,11 @@ on:
     branches: [ master ]
 
 env:
+  #Container Stuff
   DOCKER_IMAGE_NAME: rob-derosa-tic-tac-toe-img
   IMAGE_REGISTRY_URL: docker.pkg.github.com
+
+  #Azure Environment
   AZURE_RESOURCE_GROUP: tic-tac-toe-rg
   AZURE_APP_PLAN: tic-tac-toe-serviceplan
   AZURE_WEBAPP_NAME: rob-derosa-tic-tac-toe
@@ -19,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [10.x, 12.x, 14.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -77,12 +80,12 @@ jobs:
         run: |
           az appservice plan create --resource-group ${{env.AZURE_RESOURCE_GROUP}} --name ${{env.AZURE_APP_PLAN}} --is-linux --sku F1 --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
 
-      - name: Create webapp resource
+      - name: Create web app resource
         if: success()
         run: |
           az webapp create --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  --deployment-container-image-name nginx --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
 
-      - name: Configure webapp to use Packages Container Registry
+      - name: Configure web app to use Packages Container Registry
         if: success()
         run: |
           az webapp config container set --docker-custom-image-name nginx --docker-registry-server-password ${{secrets.AZURE_DOCKER_PAT}} --docker-registry-server-url https://docker.pkg.github.com --docker-registry-server-user ${{github.actor}} --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
@@ -96,7 +99,7 @@ jobs:
       - name: Sleep for 180 seconds
         uses: jakejarvis/wait-action@master
         with:
-          time: '180s'
+          time: '30s'
 
       - name: Login via Azure CLI
         uses: azure/login@v1
