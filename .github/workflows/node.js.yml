@@ -9,9 +9,9 @@ on:
 env:
   DOCKER_IMAGE_NAME: rob-derosa-azure-ttt
   IMAGE_REGISTRY_URL: docker.pkg.github.com
-  AZURE_WEBAPP_NAME: rob-derosa-ttt-app
+  AZURE_WEBAPP_NAME: rob-derosa-ttt-app2
   AZURE_RESOURCE_GROUP: cd-with-actions2
-  AZURE_APP_PLAN: actions-ttt-deployment
+  AZURE_APP_PLAN: actions-ttt-deployment2
   AZURE_LOCATION: '"Central US"'
   
 
@@ -56,6 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     needs: build-docker-image
+    name: Spin up new Azure environment for testing
 
     steps:
       - name: Checkout repository
