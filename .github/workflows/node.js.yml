@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  DOCKER_IMAGE_NAME: tic-tac-toe-image
+  DOCKER_IMAGE_NAME: rob-derosa-tic-tac-toe
   IMAGE_REGISTRY_URL: docker.pkg.github.com
   AZURE_RESOURCE_GROUP: tic-tac-toe-rg
   AZURE_APP_PLAN: tic-tac-toe-serviceplan
