@@ -59,6 +59,11 @@ jobs:
     name: Deploy app container to Azure
 
     steps:
+      - name: Sleep for 180 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '180s'
+      
       - name: "Login via Azure CLI"
         uses: azure/login@v1
         with:
