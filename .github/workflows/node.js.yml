@@ -7,13 +7,12 @@ on:
     branches: [ master ]
 
 env:
-  DOCKER_IMAGE_NAME: rob-derosa-azure-ttt
+  DOCKER_IMAGE_NAME: tic-tac-toe-image
   IMAGE_REGISTRY_URL: docker.pkg.github.com
-  AZURE_WEBAPP_NAME: rob-derosa-ttt-app2
-  AZURE_RESOURCE_GROUP: cd-with-actions2
-  AZURE_APP_PLAN: actions-ttt-deployment2
+  AZURE_RESOURCE_GROUP: tic-tac-toe-rg
+  AZURE_APP_PLAN: tic-tac-toe-serviceplan
   AZURE_LOCATION: '"Central US"'
-  
+  AZURE_WEBAPP_NAME: rob-derosa-tic-tac-toe  
 
 jobs:
   build:
@@ -112,6 +111,21 @@ jobs:
       - name: Azure logout
         run: |
           az logout
-          
-          
-          
+
+  destroy-azure-resources:
+    runs-on: ubuntu-latest
+    name: Destroy Azure testing environment (save $$$)
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Destroy Azure environment
+        if: success()
+        run: |
+          az group delete --name ${{env.AZURE_RESOURCE_GROUP}} --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}} --yes
