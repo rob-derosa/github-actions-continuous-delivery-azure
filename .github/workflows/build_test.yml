@@ -88,7 +88,7 @@ jobs:
 
   deploy-to-azure:
     runs-on: ubuntu-latest
-    needs: build-docker-image
+    needs: setup-up-azure-resources
     name: Deploy app container to Azure
     steps:
       - name: "Login via Azure CLI"
