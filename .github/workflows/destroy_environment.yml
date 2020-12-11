@@ -3,7 +3,7 @@ name: Destroy Azure environment
 on:
   workflow_dispatch:
     inputs:
-
+        
 env:
   AZURE_RESOURCE_GROUP: tic-tac-toe-rg
   AZURE_APP_PLAN: tic-tac-toe-serviceplan
@@ -13,6 +13,7 @@ env:
 jobs:
 
   destroy-azure-resources:
+    name: Destroy Azure environment
     runs-on: ubuntu-latest
 
     steps:
