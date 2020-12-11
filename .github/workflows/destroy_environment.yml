@@ -1,7 +1,8 @@
 name: Destroy Azure environment
 
-on: 
-  workflow-dispatch
+on:
+  workflow_dispatch:
+    inputs:
 
 env:
   AZURE_RESOURCE_GROUP: tic-tac-toe-rg
