@@ -13,6 +13,7 @@ env:
   AZURE_APP_PLAN: tic-tac-toe-serviceplan
   AZURE_WEBAPP_NAME: rob-derosa-tic-tac-toe
   AZURE_LOCATION: '"Central US"'
+  ARTIFACT_NAME: ""
 
 jobs:
   build:
@@ -55,16 +56,50 @@ jobs:
           repo-token: ${{secrets.GITHUB_TOKEN}}
           image-name: ${{env.DOCKER_IMAGE_NAME}}
           
-  deploy-to-azure:
+  setup-up-azure-resources:
+    name: Spin up new Azure environment for testing
     runs-on: ubuntu-latest
     needs: build-docker-image
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure resource group
+        if: success()
+        run: |
+          az group create --location ${{env.AZURE_LOCATION}} --name ${{secrets.AZURE_RESOURCE_GROUP}} --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      - name: Create Azure app service plan
+        if: success()
+        run: |
+          az appservice plan create --resource-group ${{secrets.AZURE_RESOURCE_GROUP}} --name ${{env.AZURE_APP_PLAN}} --is-linux --sku F1 --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      - name: Create web app resource
+        if: success()
+        run: |
+          az webapp create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --plan ${{ env.AZURE_APP_PLAN }} --name ${{ env.AZURE_WEBAPP_NAME }}  --deployment-container-image-name nginx --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+      - name: Configure web app to use Packages Container Registry
+        if: success()
+        run: |
+          az webapp config container set --docker-custom-image-name nginx --docker-registry-server-password ${{secrets.AZURE_DOCKER_PAT}} --docker-registry-server-url https://docker.pkg.github.com --docker-registry-server-user ${{github.actor}} --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --subscription ${{secrets.AZURE_SUBSCRIPTION_ID}}
+
+  deploy-to-azure:
+    runs-on: ubuntu-latest
+    needs: setup-up-azure-resources
     name: Deploy app container to Azure
 
     steps:
       - name: Go to sleep - Azure might be busy
         uses: jakejarvis/wait-action@master
         with:
-          time: '30s'
+          time: '45s'
 
       - name: Login via Azure CLI
         uses: azure/login@v1
